@@ -34,3 +34,9 @@ Buy T5:11019.48  Sell T5:10744.54
 ---------------------------------------------
 
 ---------------------------------------------
+
+
+
+
+
+How to run: Go to Bin\Release Folder and run Executable available
