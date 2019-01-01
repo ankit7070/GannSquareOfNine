@@ -8,6 +8,9 @@ namespace GannLibrary
 {
     class Gann
     {
+        private const double buyMultiplier = 0.9995;
+        private const double sellMultiplier = 1.0005;
+        int decimalPlaces;
         double cmp;
         double firstValDown;
         double secondValDown;
@@ -17,20 +20,30 @@ namespace GannLibrary
 
         #region BuyValues
         public double BuyAt { get; set; }
-        public double BuyTargetOne { get; }
-        public double BuyTargetTwo { get; }
-        public double BuyTargetThree { get; }
-        public double BuyTargetFour { get; }
-        public double BuyTargetFive { get; }
+        public double BuyTargetOne
+        { get { return RoundDown(this.ResistanceOne * buyMultiplier); } }
+        public double BuyTargetTwo
+        { get { return RoundDown(this.ResistanceTwo * buyMultiplier); } }
+        public double BuyTargetThree
+        { get { return RoundDown(this.ResistanceThree * buyMultiplier); } }
+        public double BuyTargetFour
+        { get { return RoundDown(this.ResistanceFour * buyMultiplier); } }
+        public double BuyTargetFive
+        { get { return RoundDown(this.ResistanceFive * buyMultiplier); } }
         #endregion
 
         #region SellValues
         public double SellAt { get; set; }
-        public double SellTargetOne { get; }
-        public double SellTargetTwo { get; }
-        public double SellTargetThree { get; }
-        public double SellTargetFour { get; }
-        public double SellTargetFive { get; }
+        public double SellTargetOne
+        { get { return RoundDown(this.SupportOne * sellMultiplier); } }
+        public double SellTargetTwo
+        { get { return RoundDown(this.SupportTwo * sellMultiplier); } }
+        public double SellTargetThree
+        { get { return RoundDown(this.SupportThree * sellMultiplier); } }
+        public double SellTargetFour
+        { get { return RoundDown(this.SupportFour * sellMultiplier); } }
+        public double SellTargetFive
+        { get { return RoundDown(this.SupportFive * sellMultiplier); } }
         #endregion
 
         #region ResistanceValues
@@ -48,8 +61,9 @@ namespace GannLibrary
         private double SupportFour;
         private double SupportFive;
         #endregion
-        public Gann(double currentMarketPrice)
+        public Gann(double currentMarketPrice, int decimalPlacesForRounding = -1)
         {
+            this.decimalPlaces = decimalPlacesForRounding;
             cmp = currentMarketPrice;
             double squareRoot = Math.Sqrt(cmp);
             firstValDown = Math.Floor(squareRoot);
@@ -58,6 +72,14 @@ namespace GannLibrary
             secondValUp = firstValUp + 1;
 
             CalculateGann();
+        }
+
+        public double RoundDown(double number)
+        {
+            if (decimalPlaces != -1)
+                return Math.Floor(number * Math.Pow(10, decimalPlaces)) / Math.Pow(10, decimalPlaces);
+            else
+                return number;
         }
 
         private void CalculateGann()
@@ -71,6 +93,7 @@ namespace GannLibrary
             CalculateBuyAt();
             CalculateSellAt();
             CalculateResistance();
+            CalculateSupport();
         }
 
         private void CalculateBuyAt()
@@ -106,7 +129,9 @@ namespace GannLibrary
             else if (gannInternalValues[6, 5] != 0)
                 this.BuyAt = gannInternalValues[6, 3];
             else if (gannInternalValues[6, 2] != 0)
-                this.BuyAt = gannInternalValues[6, 0];            
+                this.BuyAt = gannInternalValues[6, 0];
+
+            this.BuyAt = RoundDown(this.BuyAt);          
         }
 
         private void CalculateSellAt()
@@ -143,6 +168,8 @@ namespace GannLibrary
                 this.SellAt = gannInternalValues[6, 6];
             else if (gannInternalValues[6, 2] != 0)
                 this.SellAt = gannInternalValues[6, 3];
+
+            this.SellAt = RoundDown(this.SellAt);
         }
 
         private void CalculateResistance()
@@ -334,41 +361,194 @@ namespace GannLibrary
                 this.ResistanceFive = gannInternalValues[6, 0];
         }
 
-        //private void CalculateS1()
-        //{
-        //    if (gannInternalValues[4, 1] != 0)
-        //        this.SupportOne = gannInternalValues[4, 3];
-        //    else if (gannInternalValues[2, 1] != 0)
-        //        this.SupportOne = gannInternalValues[5, 3];
-        //    else if (gannInternalValues[1, 2] != 0)
-        //        this.SupportOne = gannInternalValues[5, 1];
-        //    else if (gannInternalValues[1, 4] != 0)
-        //        this.SupportOne = gannInternalValues[3, 0];
-        //    else if (gannInternalValues[2, 5] != 0)
-        //        this.SupportOne = gannInternalValues[0, 0];
-        //    else if (gannInternalValues[4, 5] != 0)
-        //        this.SupportOne = gannInternalValues[0, 3];
-        //    else if (gannInternalValues[5, 4] != 0)
-        //        this.SupportOne = gannInternalValues[0, 6];
-        //    else if (gannInternalValues[5, 2] != 0)
-        //        this.SupportOne = gannInternalValues[3, 6];
-        //    else if (gannInternalValues[5, 0] != 0)
-        //        this.SupportOne = gannInternalValues[6, 6];
-        //    else if (gannInternalValues[2, 0] != 0)
-        //        this.SupportOne = gannInternalValues[6, 3];
-        //    else if (gannInternalValues[0, 1] != 0)
-        //        this.SupportOne = gannInternalValues[6, 0];
-        //    else if (gannInternalValues[0, 4] != 0)
-        //        this.SupportOne = gannInternalValues[6, 0];
-        //    else if (gannInternalValues[1, 6] != 0)
-        //        this.SupportOne = gannInternalValues[6, 0];
-        //    else if (gannInternalValues[4, 6] != 0)
-        //        this.SupportOne = gannInternalValues[6, 0];
-        //    else if (gannInternalValues[6, 5] != 0)
-        //        this.SupportOne = gannInternalValues[6, 0];
-        //    else if (gannInternalValues[6, 2] != 0)
-        //        this.SupportOne = gannInternalValues[6, 0];
-        //}
+        private void CalculateSupport()
+        {
+            CalculateS1();
+            CalculateS2();
+            CalculateS3();
+            CalculateS4();
+            CalculateS5();
+        }
+
+        private void CalculateS1()
+        {
+            if (gannInternalValues[4, 1] != 0)
+                this.SupportOne = gannInternalValues[4, 3];
+            else if (gannInternalValues[2, 1] != 0)
+                this.SupportOne = gannInternalValues[4, 2];
+            else if (gannInternalValues[1, 2] != 0)
+                this.SupportOne = gannInternalValues[3, 1];
+            else if (gannInternalValues[1, 4] != 0)
+                this.SupportOne = gannInternalValues[1, 1];
+            else if (gannInternalValues[2, 5] != 0)
+                this.SupportOne = gannInternalValues[1, 3];
+            else if (gannInternalValues[4, 5] != 0)
+                this.SupportOne = gannInternalValues[1, 5];
+            else if (gannInternalValues[5, 4] != 0)
+                this.SupportOne = gannInternalValues[3, 5];
+            else if (gannInternalValues[5, 2] != 0)
+                this.SupportOne = gannInternalValues[5, 5];
+            else if (gannInternalValues[5, 0] != 0)
+                this.SupportOne = gannInternalValues[5, 3];
+            else if (gannInternalValues[2, 0] != 0)
+                this.SupportOne = gannInternalValues[5, 1];
+            else if (gannInternalValues[0, 1] != 0)
+                this.SupportOne = gannInternalValues[3, 0];
+            else if (gannInternalValues[0, 4] != 0)
+                this.SupportOne = gannInternalValues[0, 0];
+            else if (gannInternalValues[1, 6] != 0)
+                this.SupportOne = gannInternalValues[0, 3];
+            else if (gannInternalValues[4, 6] != 0)
+                this.SupportOne = gannInternalValues[0, 6];
+            else if (gannInternalValues[6, 5] != 0)
+                this.SupportOne = gannInternalValues[3, 6];
+            else if (gannInternalValues[6, 2] != 0)
+                this.SupportOne = gannInternalValues[6, 6];
+        }
+
+        private void CalculateS2()
+        {
+            if (gannInternalValues[4, 1] != 0)
+                this.SupportTwo = gannInternalValues[4, 4];
+            else if (gannInternalValues[2, 1] != 0)
+                this.SupportTwo = gannInternalValues[4, 3];
+            else if (gannInternalValues[1, 2] != 0)
+                this.SupportTwo = gannInternalValues[4, 2];
+            else if (gannInternalValues[1, 4] != 0)
+                this.SupportTwo = gannInternalValues[3, 1];
+            else if (gannInternalValues[2, 5] != 0)
+                this.SupportTwo = gannInternalValues[1, 1];
+            else if (gannInternalValues[4, 5] != 0)
+                this.SupportTwo = gannInternalValues[1, 3];
+            else if (gannInternalValues[5, 4] != 0)
+                this.SupportTwo = gannInternalValues[1, 5];
+            else if (gannInternalValues[5, 2] != 0)
+                this.SupportTwo = gannInternalValues[3, 5];
+            else if (gannInternalValues[5, 0] != 0)
+                this.SupportTwo = gannInternalValues[5, 5];
+            else if (gannInternalValues[2, 0] != 0)
+                this.SupportTwo = gannInternalValues[5, 3];
+            else if (gannInternalValues[0, 1] != 0)
+                this.SupportTwo = gannInternalValues[5, 1];
+            else if (gannInternalValues[0, 4] != 0)
+                this.SupportTwo = gannInternalValues[3, 0];
+            else if (gannInternalValues[1, 6] != 0)
+                this.SupportTwo = gannInternalValues[0, 0];
+            else if (gannInternalValues[4, 6] != 0)
+                this.SupportTwo = gannInternalValues[0, 3];
+            else if (gannInternalValues[6, 5] != 0)
+                this.SupportTwo = gannInternalValues[0, 6];
+            else if (gannInternalValues[6, 2] != 0)
+                this.SupportTwo = gannInternalValues[3, 6];
+        }
+
+        private void CalculateS3()
+        {
+            if (gannInternalValues[4, 1] != 0)
+                this.SupportThree = gannInternalValues[3, 4];
+            else if (gannInternalValues[2, 1] != 0)
+                this.SupportThree = gannInternalValues[4, 4];
+            else if (gannInternalValues[1, 2] != 0)
+                this.SupportThree = gannInternalValues[4, 3];
+            else if (gannInternalValues[1, 4] != 0)
+                this.SupportThree = gannInternalValues[4, 2];
+            else if (gannInternalValues[2, 5] != 0)
+                this.SupportThree = gannInternalValues[3, 1];
+            else if (gannInternalValues[4, 5] != 0)
+                this.SupportThree = gannInternalValues[1, 1];
+            else if (gannInternalValues[5, 4] != 0)
+                this.SupportThree = gannInternalValues[1, 3];
+            else if (gannInternalValues[5, 2] != 0)
+                this.SupportThree = gannInternalValues[1, 5];
+            else if (gannInternalValues[5, 0] != 0)
+                this.SupportThree = gannInternalValues[3, 5];
+            else if (gannInternalValues[2, 0] != 0)
+                this.SupportThree = gannInternalValues[5, 5];
+            else if (gannInternalValues[0, 1] != 0)
+                this.SupportThree = gannInternalValues[5, 3];
+            else if (gannInternalValues[0, 4] != 0)
+                this.SupportThree = gannInternalValues[5, 1];
+            else if (gannInternalValues[1, 6] != 0)
+                this.SupportThree = gannInternalValues[3, 0];
+            else if (gannInternalValues[4, 6] != 0)
+                this.SupportThree = gannInternalValues[0, 0];
+            else if (gannInternalValues[6, 5] != 0)
+                this.SupportThree = gannInternalValues[0, 3];
+            else if (gannInternalValues[6, 2] != 0)
+                this.SupportThree = gannInternalValues[0, 6];
+        }
+
+        private void CalculateS4()
+        {
+            if (gannInternalValues[4, 1] != 0)
+                this.SupportFour = gannInternalValues[2, 4];
+            else if (gannInternalValues[2, 1] != 0)
+                this.SupportFour = gannInternalValues[3, 4];
+            else if (gannInternalValues[1, 2] != 0)
+                this.SupportFour = gannInternalValues[4, 4];
+            else if (gannInternalValues[1, 4] != 0)
+                this.SupportFour = gannInternalValues[4, 3];
+            else if (gannInternalValues[2, 5] != 0)
+                this.SupportFour = gannInternalValues[4, 2];
+            else if (gannInternalValues[4, 5] != 0)
+                this.SupportFour = gannInternalValues[3, 1];
+            else if (gannInternalValues[5, 4] != 0)
+                this.SupportFour = gannInternalValues[1, 1];
+            else if (gannInternalValues[5, 2] != 0)
+                this.SupportFour = gannInternalValues[1, 3];
+            else if (gannInternalValues[5, 0] != 0)
+                this.SupportFour = gannInternalValues[1, 5];
+            else if (gannInternalValues[2, 0] != 0)
+                this.SupportFour = gannInternalValues[3, 5];
+            else if (gannInternalValues[0, 1] != 0)
+                this.SupportFour = gannInternalValues[5, 5];
+            else if (gannInternalValues[0, 4] != 0)
+                this.SupportFour = gannInternalValues[5, 3];
+            else if (gannInternalValues[1, 6] != 0)
+                this.SupportFour = gannInternalValues[5, 1];
+            else if (gannInternalValues[4, 6] != 0)
+                this.SupportFour = gannInternalValues[3, 0];
+            else if (gannInternalValues[6, 5] != 0)
+                this.SupportFour = gannInternalValues[0, 0];
+            else if (gannInternalValues[6, 2] != 0)
+                this.SupportFour = gannInternalValues[0, 3];
+        }
+
+        private void CalculateS5()
+        {
+            if (gannInternalValues[4, 1] != 0)
+                this.SupportFive = gannInternalValues[2, 3];
+            else if (gannInternalValues[2, 1] != 0)
+                this.SupportFive = gannInternalValues[2, 4];
+            else if (gannInternalValues[1, 2] != 0)
+                this.SupportFive = gannInternalValues[3, 4];
+            else if (gannInternalValues[1, 4] != 0)
+                this.SupportFive = gannInternalValues[4, 4];
+            else if (gannInternalValues[2, 5] != 0)
+                this.SupportFive = gannInternalValues[4, 3];
+            else if (gannInternalValues[4, 5] != 0)
+                this.SupportFive = gannInternalValues[4, 2];
+            else if (gannInternalValues[5, 4] != 0)
+                this.SupportFive = gannInternalValues[3, 1];
+            else if (gannInternalValues[5, 2] != 0)
+                this.SupportFive = gannInternalValues[1, 1];
+            else if (gannInternalValues[5, 0] != 0)
+                this.SupportFive = gannInternalValues[1, 3];
+            else if (gannInternalValues[2, 0] != 0)
+                this.SupportFive = gannInternalValues[1, 5];
+            else if (gannInternalValues[0, 1] != 0)
+                this.SupportFive = gannInternalValues[3, 5];
+            else if (gannInternalValues[0, 4] != 0)
+                this.SupportFive = gannInternalValues[5, 5];
+            else if (gannInternalValues[1, 6] != 0)
+                this.SupportFive = gannInternalValues[5, 3];
+            else if (gannInternalValues[4, 6] != 0)
+                this.SupportFive = gannInternalValues[5, 1];
+            else if (gannInternalValues[6, 5] != 0)
+                this.SupportFive = gannInternalValues[3, 0];
+            else if (gannInternalValues[6, 2] != 0)
+                this.SupportFive = gannInternalValues[0, 0];
+        }
 
         private void UpdateFirstDiagonal()
         {
