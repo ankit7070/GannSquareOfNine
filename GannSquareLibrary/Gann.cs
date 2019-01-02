@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GannLibrary
 {
-    class Gann
+    public class Gann
     {
         private const double buyMultiplier = 0.9995;
         private const double sellMultiplier = 1.0005;
